@@ -12,7 +12,7 @@ import java.util.Scanner;
 
 public class ServerSingleThreaded {
     // Datenbank-Konfiguration
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/greeting_db";
+    private static final String DB_URL = "jdbc:postgresql://db:5432/greeting_db";
     private static final String DB_USER = "app";
     private static final String DB_PASSWORD = "app";
 
@@ -52,15 +52,33 @@ public class ServerSingleThreaded {
             // Pfad extrahieren
             String[] parts = requestLine.split(" ");
             if (parts.length >= 2 && "GET".equals(parts[0])) {
-                String path = parts[1]; // z.B. /greeting/1
-                if (path.startsWith("/greeting/")) {
+                String path = parts[1]; // z.B. /greeting oder /greeting/1
+                GreetingRepository repo = new GreetingRepository(DB_URL, DB_USER, DB_PASSWORD);
+
+                if ("/greeting".equals(path)) {
+                    // Alle Greetings anzeigen
+                    var allGreetings = repo.findAll();
+                    StringBuilder html = new StringBuilder();
+                    html.append("<h1>Alle Greetings</h1>");
+                    html.append("<table border='1'><tr><th>ID</th><th>Text</th></tr>");
+                    for (Greeting g : allGreetings) {
+                        html.append("<tr><td>")
+                                .append(g.getId())
+                                .append("</td><td>")
+                                .append(g.getGreetingText())
+                                .append("</td></tr>");
+                    }
+                    html.append("</table>");
+                    respond(writer, 200, html.toString());
+
+                } else if (path.startsWith("/greeting/")) {
+                    // Einzelnen Greeting anzeigen
                     String idStr = path.substring("/greeting/".length());
                     try {
                         int id = Integer.parseInt(idStr);
-                        GreetingRepository repo = new GreetingRepository(DB_URL, DB_USER, DB_PASSWORD);
                         Greeting greeting = repo.findById(id);
                         if (greeting != null) {
-                            respond(writer, 200, greeting.getGreetingText());
+                            respond(writer, 200, "<h1>" + greeting.getGreetingText() + "</h1>");
                         } else {
                             respond(writer, 404, "Greeting not found");
                         }
