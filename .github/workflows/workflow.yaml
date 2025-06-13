@@ -34,7 +34,7 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-              docker build --file src/Dockerfile -t ghcr.io/ngimbisarah243/webserver:latest .
+              docker build --file greeting-service-uebung/src/Dockerfile -t ghcr.io/ngimbisarah243/webserver:latest .
               docker push ghcr.io/ngimbisarah243/webserver:latest 
 
     - run: echo " This job's status is ${{ job.status }}."
