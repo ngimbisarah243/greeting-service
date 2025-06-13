@@ -29,6 +29,7 @@ jobs:
 
 
     - name: Build with Maven
+      working-directory: greeting-service-uebung
       run: mvn --batch-mode package
 
     - name: Build and push Docker image
