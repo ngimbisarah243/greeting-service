@@ -1,5 +1,6 @@
 services:
   webserver:
+    image: ghcr.io/ngimbisarah243/webserver:latest
     build:
       context: ../../
       dockerfile: src/Dockerfile
