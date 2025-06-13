@@ -1,0 +1,41 @@
+name: Log in to GitHub Container Registry
+on: [ push ]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+ build-docker-image-of-webserver:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+
+    - name: Set up Java 21 and cache Maven dependencies
+      uses: actions/setup-java@v4
+      with:
+              distribution: 'temurin'
+              java-version: '21'
+              cache: 'maven'
+              cache-dependency-path: 'pom.xml'
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+
+    - name: Build with Maven
+      run: mvn --batch-mode package
+
+    - name: Build and push Docker image
+      run: |
+              docker build --file src/Dockerfile -t ghcr.io/ngimbisarah243/webserver:latest .
+              docker push ghcr.io/ngimbisarah243/webserver:latest 
+
+    - run: echo " This job's status is ${{ job.status }}."
+
+
